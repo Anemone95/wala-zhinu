@@ -25,6 +25,7 @@ import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.ipa.modref.ModRef;
 import com.ibm.wala.ipa.slicer.NormalReturnCaller;
 import com.ibm.wala.ipa.slicer.ParamCaller;
+import com.ibm.wala.ipa.slicer.SDG;
 import com.ibm.wala.ipa.slicer.Statement;
 import com.ibm.wala.ipa.slicer.Statement.Kind;
 import com.ibm.wala.properties.WalaProperties;
@@ -100,12 +101,12 @@ public class JavaSourceWalaTaintAnalysis extends WalaTaintAnalysis {
 	}
 
 	@Override
-	protected EndpointFinder<Statement> sourceFinder() {
+	protected EndpointFinder<Statement> sourceFinder(SDG<InstanceKey> sdg) {
 		return JavaSourceWalaTaintAnalysis.getDeviceSource;
 	}
 
 	@Override
-	protected EndpointFinder<Statement> sinkFinder() {
+	protected EndpointFinder<Statement> sinkFinder(SDG<InstanceKey> sdg) {
 		return JavaSourceWalaTaintAnalysis.sendMessageSink;
 	}
 

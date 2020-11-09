@@ -1,5 +1,6 @@
 import subprocess
 from flask import Flask, render_template, request
+import requests
 
 app = Flask(__name__)
 
@@ -18,7 +19,7 @@ def menu():
     subprocess.call(result, shell=True)
 
     result = outer(inner(req_param))
-    subprocess.call(result, shell=True)
+    subprocess.call(result, shell=True) # subprocess.call(os.system(result))不行，没有os.system的函数摘要
 
     with open('menu.txt','r') as f:
         menu = f.read()

@@ -14,6 +14,7 @@ import com.ibm.wala.ipa.callgraph.propagation.InstanceKey;
 import com.ibm.wala.ipa.modref.ModRef;
 import com.ibm.wala.ipa.slicer.NormalStatement;
 import com.ibm.wala.ipa.slicer.ParamCallee;
+import com.ibm.wala.ipa.slicer.SDG;
 import com.ibm.wala.ipa.slicer.Statement;
 import com.ibm.wala.ipa.slicer.Statement.Kind;
 import com.ibm.wala.ssa.SSAGetInstruction;
@@ -41,7 +42,7 @@ public class JSWalaTaintAnalysis extends WalaTaintAnalysis {
 	}
 
 	@Override
-	protected EndpointFinder<Statement> sourceFinder() {
+	protected EndpointFinder<Statement> sourceFinder(SDG<InstanceKey> sdg) {
 		return (s) -> {
 			if (s.getKind()==Kind.NORMAL) {
 				NormalStatement ns = (NormalStatement) s;
@@ -58,7 +59,7 @@ public class JSWalaTaintAnalysis extends WalaTaintAnalysis {
 	}
 
 	@Override
-	protected EndpointFinder<Statement> sinkFinder() {
+	protected EndpointFinder<Statement> sinkFinder(SDG<InstanceKey> sdg) {
 		return (s) -> {
 			if (s.getKind()==Kind.PARAM_CALLEE) {
 				String ref = ((ParamCallee)s).getNode().getMethod().toString();

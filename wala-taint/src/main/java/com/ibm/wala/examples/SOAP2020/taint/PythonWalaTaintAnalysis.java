@@ -8,9 +8,7 @@ import com.ibm.wala.ipa.callgraph.propagation.AllocationSiteInNode;
 import com.ibm.wala.ipa.callgraph.propagation.InstanceKey;
 import com.ibm.wala.ipa.callgraph.propagation.LocalPointerKey;
 import com.ibm.wala.ipa.callgraph.propagation.PointerAnalysis;
-import com.ibm.wala.ipa.slicer.NormalStatement;
-import com.ibm.wala.ipa.slicer.ParamCaller;
-import com.ibm.wala.ipa.slicer.Statement;
+import com.ibm.wala.ipa.slicer.*;
 import com.ibm.wala.ssa.SSAGetInstruction;
 import com.ibm.wala.ssa.SSAInstruction;
 import com.ibm.wala.types.Descriptor;
@@ -23,7 +21,7 @@ import com.ibm.wala.util.strings.Atom;
 public class PythonWalaTaintAnalysis extends AbstractPythonWalaTaintAnalysis{
 
     @Override
-    protected EndpointFinder<Statement> sourceFinder() {
+    protected EndpointFinder<Statement> sourceFinder(SDG<InstanceKey> sdg) {
         PointerAnalysis<? super InstanceKey> ptrs = builder.getPointerAnalysis();
 
         MethodReference flask =
@@ -37,7 +35,7 @@ public class PythonWalaTaintAnalysis extends AbstractPythonWalaTaintAnalysis{
                 NormalStatement ns = (NormalStatement) s;
                 SSAInstruction inst = ns.getInstruction();
                 if (inst instanceof SSAGetInstruction) {
-                    LocalPointerKey objKey = new LocalPointerKey(ns.getNode(), inst.getUse(0));
+                    LocalPointerKey objKey = new LocalPointerKey(ns.getNode(), inst.getUse(0)); // FIXME: getUse=-1
                     OrdinalSet<? super InstanceKey> objs = ptrs.getPointsToSet(objKey);
                     for (Object x : objs) {
                         if (x instanceof AllocationSiteInNode) {
@@ -55,19 +53,23 @@ public class PythonWalaTaintAnalysis extends AbstractPythonWalaTaintAnalysis{
     }
 
     @Override
-    protected EndpointFinder<Statement> sinkFinder() {
+    protected EndpointFinder<Statement> sinkFinder(SDG<InstanceKey> sdg) {
         CallGraph CG = builder.getCallGraph();
-        return (s) -> {
-            if (s.getKind()==Statement.Kind.PARAM_CALLER) {
-                CallSiteReference cs = ((ParamCaller)s).getInstruction().getCallSite();
-                for(CGNode callee : CG.getPossibleTargets(s.getNode(), cs)) {
-                    if (callee.getMethod().getReference().toString().contains("subprocess/function/call")) {
-                        return true;
+
+        return new EndpointFinder<Statement>() {
+            @Override
+            public boolean endpoint(Statement s) {
+                if (s.getKind()==Statement.Kind.PARAM_CALLER) {
+                    CallSiteReference cs = ((ParamCaller)s).getInstruction().getCallSite();
+                    for(CGNode callee : CG.getPossibleTargets(s.getNode(), cs)) {
+                        if (callee.getMethod().getReference().toString().contains("sub")) {
+                            System.out.println(s.toString());
+                            return true;
+                        }
                     }
                 }
+                return false;
             }
-
-            return false;
         };
     }
 }

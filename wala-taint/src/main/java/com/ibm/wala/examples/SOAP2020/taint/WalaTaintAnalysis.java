@@ -39,9 +39,9 @@ import org.eclipse.lsp4j.MessageType;
 
 public abstract class WalaTaintAnalysis implements ToolAnalysis {
 
-	protected abstract EndpointFinder<Statement> sourceFinder();
+	protected abstract EndpointFinder<Statement> sourceFinder(SDG<InstanceKey> s);
 	
-	protected abstract EndpointFinder<Statement> sinkFinder();
+	protected abstract EndpointFinder<Statement> sinkFinder(SDG<InstanceKey> s);
 
 	protected abstract ModRef<InstanceKey> modRef();
 	
@@ -50,10 +50,10 @@ public abstract class WalaTaintAnalysis implements ToolAnalysis {
 		try {
 			AstSSAPropagationCallGraphBuilder builder = makeBuilder(files, server);
 			CallGraph CG = builder.makeCallGraph(builder.getOptions());
-			System.err.println(CG);
-			Graph<Statement> SDG = new SDG<>(CG, builder.getPointerAnalysis(), modRef(), DataDependenceOptions.NO_BASE_NO_HEAP_NO_EXCEPTIONS, ControlDependenceOptions.NONE);
-			System.err.println(SDG);
-			Set<List<Statement>> paths = getPaths(SDG, sourceFinder(), sinkFinder());
+//			System.err.println(CG);
+			SDG<InstanceKey> sdg = new SDG<>(CG, builder.getPointerAnalysis(), modRef(), DataDependenceOptions.NO_BASE_NO_HEAP_NO_EXCEPTIONS, ControlDependenceOptions.NONE);
+//			System.err.println(SDG);
+			Set<List<Statement>> paths = getPaths(sdg, sourceFinder(sdg), sinkFinder(sdg));
 			Set<AnalysisResult> results = HashSetFactory.make();
 			paths.forEach((path) ->  {
 				List<AnalysisResult> pr = new LinkedList<>();
