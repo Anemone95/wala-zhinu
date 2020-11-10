@@ -53,6 +53,7 @@ public abstract class WalaTaintAnalysis implements ToolAnalysis {
 //			System.err.println(CG);
 			SDG<InstanceKey> sdg = new SDG<>(CG, builder.getPointerAnalysis(), modRef(), DataDependenceOptions.NO_BASE_NO_HEAP_NO_EXCEPTIONS, ControlDependenceOptions.NONE);
 //			System.err.println(SDG);
+			// 在sdg中解析图可达的问题
 			Set<List<Statement>> paths = getPaths(sdg, sourceFinder(sdg), sinkFinder(sdg));
 			Set<AnalysisResult> results = HashSetFactory.make();
 			paths.forEach((path) ->  {
