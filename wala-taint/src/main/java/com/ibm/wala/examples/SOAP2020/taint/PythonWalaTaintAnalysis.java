@@ -62,7 +62,7 @@ public class PythonWalaTaintAnalysis extends AbstractPythonWalaTaintAnalysis{
                 if (s.getKind()==Statement.Kind.PARAM_CALLER) {
                     CallSiteReference cs = ((ParamCaller)s).getInstruction().getCallSite();
                     for(CGNode callee : CG.getPossibleTargets(s.getNode(), cs)) {
-                        if (callee.getMethod().getReference().toString().contains("sub")) {
+                        if (callee.getMethod().getReference().toString().contains("subprocess/function/call")) {
                             System.out.println(s.toString());
                             return true;
                         }
