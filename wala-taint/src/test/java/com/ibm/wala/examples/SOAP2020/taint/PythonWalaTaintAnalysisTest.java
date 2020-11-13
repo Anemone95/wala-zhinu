@@ -37,9 +37,9 @@ public class PythonWalaTaintAnalysisTest {
 
     @Before
     public void before() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        Class<?> j3 = Class.forName("com.ibm.wala.cast.python.loader.Python3LoaderFactory");
+        Class<?> j3 = Class.forName("com.ibm.wala.cast.python3.loader.Python3LoaderFactory");
         PythonAnalysisEngine.setLoaderFactory((Class<? extends PythonLoaderFactory>) j3);
-        Class<?> i3 = Class.forName("com.ibm.wala.cast.python.util.Python3Interpreter");
+        Class<?> i3 = Class.forName("com.ibm.wala.cast.python3.util.Python3Interpreter");
         PythonInterpreter.setInterpreter((PythonInterpreter)i3.newInstance());
     }
 
