@@ -6,7 +6,9 @@ wala-taint(织女) is an example of taint analysis across mutiple languages in [
 
 ### Building
 
-[织女](https://github.com/wala/Examples/blob/master/织女/doc/README-building-织女.md) 
+1. Build wala-python
+2. Build  [MagpieBridge](https://github.com/MagpieBridge/MagpieBridge)
+3. Build wala-taint
 
 [VSCode extension](https://github.com/wala/Examples/blob/master/织女/doc/README-building-vscode.md) 
 

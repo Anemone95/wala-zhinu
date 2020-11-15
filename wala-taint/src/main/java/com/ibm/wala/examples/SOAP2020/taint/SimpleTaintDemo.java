@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
-public class SDGDemo {
+public class SimpleTaintDemo {
     public static void main(String[] args) throws ClassNotFoundException, IllegalAccessException, InstantiationException, CancelException, IOException, WalaException {
         Class<?> j3 = Class.forName("com.ibm.wala.cast.python3.loader.Python3LoaderFactory");
         PythonAnalysisEngine.setLoaderFactory((Class<? extends PythonLoaderFactory>) j3);
@@ -46,7 +46,7 @@ public class SDGDemo {
 
         String filename="demo.py";
         Collection<Module> src = Collections.singleton(new SourceURLModule(
-                SDGDemo.class.getClassLoader().getResource(filename)));
+                SimpleTaintDemo.class.getClassLoader().getResource(filename)));
         PythonAnalysisEngine<Void> analysisEngine = new PythonAnalysisEngine<Void>() {
             @Override
             public Void performAnalysis(PropagationCallGraphBuilder builder) throws CancelException {
@@ -59,8 +59,10 @@ public class SDGDemo {
         CallGraph callGraph = builder.makeCallGraph(builder.getOptions());
         CAstCallGraphUtil.AVOID_DUMP = false;
         CAstCallGraphUtil.dumpCG((SSAContextInterpreter)builder.getContextInterpreter(), builder.getPointerAnalysis(), callGraph);
+        DotUtil.dotify(callGraph, null, PDFTypeHierarchy.DOT_FILE, "callgraph.pdf", "dot");
         SDG<InstanceKey> sdg = new SDG<>(callGraph, builder.getPointerAnalysis(), new PythonModRef(), Slicer.DataDependenceOptions.NO_BASE_NO_HEAP_NO_EXCEPTIONS, Slicer.ControlDependenceOptions.NONE);
-        DotUtil.dotify(sdg, null, PDFTypeHierarchy.DOT_FILE, "temp.pdf", "dot");
+        System.out.println("SDG:\n"+sdg.toString()+"\n---------------\n");; // eagerConstruction
+        DotUtil.dotify(sdg, null, PDFTypeHierarchy.DOT_FILE, "sdg.pdf", "dot");
         System.out.println(getPaths(sdg, sourceFinder(sdg), sinkFinder(sdg)));
     }
 
@@ -124,7 +126,6 @@ public class SDGDemo {
                     CallSiteReference cs = ((ParamCaller)s).getInstruction().getCallSite();
                     for(CGNode callee : CG.getPossibleTargets(s.getNode(), cs)) {
                         if (callee.getMethod().getReference().toString().contains("os/function/system")) {
-                            System.out.println(s.toString());
                             return true;
                         }
                     }
